@@ -1,0 +1,66 @@
+package gvsu;
+
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+public class Section implements Serializable {
+	
+	private String dept;
+	private int course;
+	private String name;
+	private int section;
+	private ArrayList<TimeConstraint> times;
+	
+	public Section() {
+		
+	}
+	
+	public Section(String dept, int course, int section, String name, String days, String time) {
+		this.dept = dept;
+		this.course = course;
+		this.section = section;
+		this.name = name;
+		
+		this.times = new ArrayList<TimeConstraint>();
+		
+		char[] weekdays = days.toCharArray();
+		
+		for(char c: weekdays) {
+			times.add(new TimeConstraint(c, time));
+		}
+	}
+	
+	public void addNewTimes(String days, String time) {
+		
+		char[] weekdays = days.toCharArray();
+		
+		for(char c: weekdays) {
+			
+			TimeConstraint newTime = new TimeConstraint(c, time);
+			
+			if(!times.contains(newTime))
+				times.add(new TimeConstraint(c, time));
+		}
+	}
+	
+	public String toString() {
+		
+		DecimalFormat fmt = new DecimalFormat("00");
+
+		String result = dept+" "+course+"-"+fmt.format(section)+"\n";
+		
+		result += name +"\n";
+		for(TimeConstraint t: times) {
+			result += t+"\n";
+		}
+		
+		return result;
+	}
+	
+	public static void main(String[] args) {
+		Section cs = new Section("ACC", 212, 01,"Introduction to Accounting", "MWF", "11:30 am-12:45 pm");
+		System.out.println(cs);
+	}
+	
+}
