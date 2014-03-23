@@ -1,0 +1,104 @@
+package gvsu;
+
+import java.io.Serializable;
+import java.text.DecimalFormat;
+
+public class TimeConstraint implements Serializable {
+	
+	//in minutes from midnight
+	private int start;
+	private int end;
+	private int length;
+	private char day;
+	
+	public TimeConstraint(char day, int start, int end) {
+		this.day = day;
+		this.start = start;
+		this.end = end;
+		this.length = end - start;
+	}
+	
+	public TimeConstraint(char day, String startTime, String endTime) {
+		this.day = day;
+		this.start = convertTime(startTime);
+		this.end = convertTime(endTime);
+		length = end - start;
+	}
+	
+	public TimeConstraint(char day, String timeRange) throws IndexOutOfBoundsException {
+		this.day = day;
+		String[] tokens = timeRange.split("-");
+		start = convertTime(tokens[0]);
+		end = convertTime(tokens[1]);
+		length = end - start;
+	}
+	
+	public int convertTime(String time) throws IndexOutOfBoundsException, NullPointerException {
+		
+		String[] tokens = time.split(":");
+		int hours = Integer.valueOf(tokens[0]);
+		
+		String[] minutes = tokens[1].split(" ");
+		int mins = Integer.valueOf(minutes[0]);
+		boolean afternoon = minutes[1].equals("pm");
+		
+		//return time either in morning or afternoon
+		return (afternoon ? 720 + hours*60+mins : hours*60 + mins);
+		
+	}
+	
+	public boolean equals (Object other) {
+		
+		return (this.start == ((TimeConstraint) other).getStart() &&
+				this.end == ((TimeConstraint) other).getEnd() &&
+				this.day == ((TimeConstraint) other).getDay());
+
+	}
+	
+	
+	public void setStart(int start) {
+		this.start = start;
+	}
+	
+	public int getStart() {
+		return start;
+	}
+	
+	public void setEnd(int end) {
+		this.end = end;
+	}
+	
+	public int getEnd() {
+		return end;
+	}
+	
+	public void setDay(char day) {
+		this.day = day;
+	}
+	
+	public int getDay() {
+		return day;
+	}
+	
+	public String toString() {
+		
+		DecimalFormat fmt = new DecimalFormat("00");
+		int[] hours = {12,1,2,3,4,5,6,7,8,9,10,11};
+		
+		String a = hours[(start/60)%12]+":"+fmt.format(start%60);
+		String b = hours[(end/60)%12]+":"+fmt.format(end%60);
+		
+		String endingA = start > 720 ? " pm" : " am";
+		String endingB = end > 720 ? " pm" : " am";
+		
+		return day+ " "+ a + endingA + " - " + b + endingB;
+	}
+	
+	public static void main (String[] args) {
+		TimeConstraint time = new TimeConstraint('M',"06:00 pm-08:50 pm");
+		System.out.println(time.getStart()+"");
+		System.out.println(time.getEnd()+"");
+		System.out.println(time.toString());
+	}
+	
+}
