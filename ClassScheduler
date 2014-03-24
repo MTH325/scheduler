@@ -1,0 +1,143 @@
+package gvsu;
+
+import java.io.*;
+import java.util.ArrayList;
+
+public class ClassDatabase implements Serializable {
+	
+	private ArrayList<ArrayList<ArrayList<Section>>> courses;
+	private ArrayList<Section> allClasses;
+	
+	public void createDatabase(String fileName) {
+		
+		String result = "";
+		BufferedReader reader = null;
+		
+		allClasses = new ArrayList<Section>();
+		ArrayList<String> temp = new ArrayList<String>();
+		
+		try {
+			reader = new BufferedReader(
+					new InputStreamReader(
+							new BufferedInputStream(
+									new FileInputStream(new File(fileName)))));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+	    String line = null;
+
+	    try {
+	    	
+	    	System.out.println("Starting to create objects:");
+			while ((line = reader.readLine()) != null) {
+								
+				while(line.length() != 0) {
+					temp.add(line.trim());
+					line = reader.readLine();
+				}
+				
+				if(temp.size()>0 && !temp.get(0).contains("&nbsp;")) {
+					
+						try {
+							allClasses.add(new Section(temp.get(0), Integer.valueOf(temp.get(1)),
+									Integer.valueOf(temp.get(2)), temp.get(5), temp.get(6),
+									temp.get(7)));
+						} catch(NumberFormatException e) {
+							
+						}
+					
+				} else if (temp.size()>0 && temp.get(0).contains("&nbsp;")){
+					
+						allClasses.get(allClasses.size()-1).
+						addNewTimes(temp.get(9), temp.get(10));
+					
+				}
+				
+				temp.clear();				
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	    
+	    System.out.println("Done!!!");
+	}
+	
+	public ArrayList<Section> getAllClasses() {
+		return allClasses;
+	}
+	
+	public void saveDatabase(String fileName) {
+		
+		try {
+			//create output file stream to new file
+			FileOutputStream fileOut = 
+					new FileOutputStream(new File(fileName));
+				ObjectOutputStream out = 
+					new ObjectOutputStream(fileOut);
+				
+			//write this database to file
+			out.writeObject(this);
+			
+			//close both output streams
+			out.close();
+			fileOut.close();
+			
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public ClassDatabase loadDatabase(String fileName) {
+		//local variable to hold game from file
+		ClassDatabase loadedData = null;
+				
+		//create new file object to load game
+		File f = new File(fileName);
+				
+		//checks if file exists, else do nothing
+		if(f.exists()) {
+			try {
+						
+				//creates input streams
+				FileInputStream fileIn = new FileInputStream(fileName);
+				ObjectInputStream in = new ObjectInputStream(fileIn);
+						
+				//loads entire database from file
+				loadedData = (ClassDatabase) in.readObject();
+						
+				//close input streams
+				in.close();
+				fileIn.close();
+						
+				return loadedData;
+						
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} 
+		}
+				
+		return loadedData;	
+	}
+	
+	public static void main (String[] args) {
+		
+		ClassDatabase data = new ClassDatabase();
+		data.createDatabase("res/Fall2014.doc");
+		
+		for(Section s: data.getAllClasses()) {
+			System.out.println(s);
+		}
+		
+		data.saveDatabase("res/Fall2014.ser");
+	}
+}
