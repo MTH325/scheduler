@@ -27,7 +27,12 @@ public class Section implements Serializable {
 		char[] weekdays = days.toCharArray();
 		
 		for(char c: weekdays) {
-			times.add(new TimeConstraint(c, time));
+			
+			TimeConstraint newTime = new TimeConstraint(c, time);
+			
+			if(!times.contains(newTime)) {
+				times.add(new TimeConstraint(c, time));
+			}
 		}
 	}
 	
@@ -39,8 +44,9 @@ public class Section implements Serializable {
 			
 			TimeConstraint newTime = new TimeConstraint(c, time);
 			
-			if(!times.contains(newTime))
+			if(!times.contains(newTime)) {
 				times.add(new TimeConstraint(c, time));
+			}
 		}
 	}
 	
@@ -64,3 +70,4 @@ public class Section implements Serializable {
 	}
 	
 }
+
