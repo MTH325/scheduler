@@ -10,8 +10,12 @@ public class TimeConstraint implements Serializable {
 	private int end;
 	private int length;
 	private char day;
+	private boolean TBA;
+	
 	
 	public TimeConstraint(char day, int start, int end) {
+		
+		TBA = false;
 		this.day = day;
 		this.start = start;
 		this.end = end;
@@ -19,18 +23,28 @@ public class TimeConstraint implements Serializable {
 	}
 	
 	public TimeConstraint(char day, String startTime, String endTime) {
+		
+		TBA = false;
 		this.day = day;
 		this.start = convertTime(startTime);
 		this.end = convertTime(endTime);
 		length = end - start;
+		
 	}
 	
 	public TimeConstraint(char day, String timeRange) throws IndexOutOfBoundsException {
-		this.day = day;
-		String[] tokens = timeRange.split("-");
-		start = convertTime(tokens[0]);
-		end = convertTime(tokens[1]);
-		length = end - start;
+		
+		if(timeRange.contains("TBA"))
+			TBA = true;
+		else {
+			TBA = false;
+			this.day = day;
+			String[] tokens = timeRange.split("-");
+			start = convertTime(tokens[0]);
+			end = convertTime(tokens[1]);
+			length = end - start;
+		}
+		
 	}
 	
 	public int convertTime(String time) throws IndexOutOfBoundsException, NullPointerException {
@@ -49,12 +63,20 @@ public class TimeConstraint implements Serializable {
 	
 	public boolean equals (Object other) {
 		
-		return (this.start == ((TimeConstraint) other).getStart() &&
+		return ((this.TBA && ((TimeConstraint) other).getTBA()) ||
+				(this.start == ((TimeConstraint) other).getStart() &&
 				this.end == ((TimeConstraint) other).getEnd() &&
-				this.day == ((TimeConstraint) other).getDay());
+				this.day == ((TimeConstraint) other).getDay()));
 
 	}
 	
+	public void setTBA(boolean TBA) {
+		this.TBA = TBA;
+	}
+	
+	public boolean getTBA() {
+		return TBA;
+	}
 	
 	public void setStart(int start) {
 		this.start = start;
@@ -81,6 +103,10 @@ public class TimeConstraint implements Serializable {
 	}
 	
 	public String toString() {
+		
+		if(TBA) {
+			return "TBA";
+		}
 		
 		DecimalFormat fmt = new DecimalFormat("00");
 		int[] hours = {12,1,2,3,4,5,6,7,8,9,10,11};
